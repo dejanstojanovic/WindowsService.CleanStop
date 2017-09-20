@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Configuration;
@@ -15,10 +11,11 @@ namespace WindowsService.CleanStop
 {
     public partial class Service : ServiceBase
     {
-        ILog log;
-        CancellationTokenSource cancellationTokenSource;
-        CancellationToken cancellationToken;
-        List<ManualResetEvent> resetEvents;
+        private readonly ILog log;
+        private readonly CancellationTokenSource cancellationTokenSource;
+        private readonly CancellationToken cancellationToken;
+        private readonly List<ManualResetEvent> resetEvents;
+
         public Service()
         {
 
@@ -39,7 +36,7 @@ namespace WindowsService.CleanStop
         protected override void OnStop()
         {
             log.Info("Stopping service...");
-            if (!int.TryParse(ConfigurationManager.AppSettings["ServiceStopTimeout"], out int serviceStopTimeout))
+            if (!int.TryParse(ConfigurationManager.AppSettings["service.stoptimeout"], out int serviceStopTimeout))
             {
                 serviceStopTimeout = 3000;
             }
@@ -51,7 +48,7 @@ namespace WindowsService.CleanStop
         public void StartService()
         {
             log.Info("Service start invoked...");
-            if (!int.TryParse(ConfigurationManager.AppSettings["WorkersNumber"], out int workersNumber))
+            if (!int.TryParse(ConfigurationManager.AppSettings["serice.workersnumber"], out int workersNumber))
             {
                 workersNumber = 1;
             }

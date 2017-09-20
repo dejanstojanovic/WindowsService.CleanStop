@@ -33,18 +33,6 @@ namespace WindowsService.CleanStop
             this.StartService();
         }
 
-        protected override void OnStop()
-        {
-            log.Info("Stopping service...");
-            if (!int.TryParse(ConfigurationManager.AppSettings["service.stoptimeout"], out int serviceStopTimeout))
-            {
-                serviceStopTimeout = 3000;
-            }
-            this.cancellationTokenSource.Cancel();
-            WaitHandle.WaitAll(resetEvents.Select(e => e as WaitHandle).ToArray(), serviceStopTimeout); //Wait for all workers to exit
-            log.Info("Service stopped.");
-        }
-
         public void StartService()
         {
             log.Info("Service start invoked...");
@@ -86,6 +74,18 @@ namespace WindowsService.CleanStop
                 resetEvent.Set();
                 log.Info("Stopping worker...");
             }, this.cancellationToken);
+        }
+
+        protected override void OnStop()
+        {
+            log.Info("Stopping service...");
+            if (!int.TryParse(ConfigurationManager.AppSettings["service.stoptimeout"], out int serviceStopTimeout))
+            {
+                serviceStopTimeout = 3000;
+            }
+            this.cancellationTokenSource.Cancel();
+            WaitHandle.WaitAll(resetEvents.Select(e => e as WaitHandle).ToArray(), serviceStopTimeout); //Wait for all workers to exit
+            log.Info("Service stopped.");
         }
 
     }

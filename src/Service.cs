@@ -36,7 +36,7 @@ namespace WindowsService.CleanStop
         public void StartService()
         {
             log.Info("Service start invoked...");
-            if (!int.TryParse(ConfigurationManager.AppSettings["serice.workersnumber"], out int workersNumber))
+            if (!int.TryParse(ConfigurationManager.AppSettings["service.workersnumber"], out int workersNumber))
             {
                 workersNumber = 1;
             }
@@ -47,17 +47,17 @@ namespace WindowsService.CleanStop
             {
                 var resetEvent = new ManualResetEvent(false);
                 resetEvents.Add(resetEvent);
-                StartWorker(resetEvent);
+                StartWorker(i,resetEvent);
             }
 
             log.Info("Service start finished.");
         }
 
-        public void StartWorker(ManualResetEvent resetEvent)
+        public void StartWorker(int workerNumber,ManualResetEvent resetEvent)
         {
             Task.Run(() =>
             {
-                log.Info("Starting worker...");
+                log.Info($"Starting worker {workerNumber}...");
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
@@ -65,14 +65,14 @@ namespace WindowsService.CleanStop
 
                     /* Simulation code start */
                     Thread.Sleep(5000);
-                    log.Info("Worker done work");
+                    log.Info($"Worker {workerNumber} done work ");
                     /* Simulation code end */
 
                     Thread.Sleep(100); //Avoid high CPU
                 }
 
                 resetEvent.Set();
-                log.Info("Stopping worker...");
+                log.Info($"Stopping worker {workerNumber}...");
             }, this.cancellationToken);
         }
 
